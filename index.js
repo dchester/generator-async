@@ -51,7 +51,7 @@ gx.fn = function(generator) {
 		var callback = function() {};
 
 		for (var i = 0; i < arguments.length; i++) {
-			if (i == arguments.length - 1) { // && arguments[i] instanceof Function) {
+			if (i == arguments.length - 1 && arguments[i] instanceof Function) {
 				callback = arguments[i];	
 			} else {
 				args.push(arguments[i]);
