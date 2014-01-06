@@ -1,0 +1,7 @@
+{
+  "name": "gentrify",
+  "description": "Generator-based asynchronous control flow for Node.js",
+  "devDependencies": {
+    "nodeunit": "*"
+  }
+}
