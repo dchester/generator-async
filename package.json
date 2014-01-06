@@ -1,5 +1,5 @@
 {
-  "name": "gentrify",
+  "name": "gx",
   "description": "Generator-based asynchronous control flow for Node.js",
   "devDependencies": {
     "nodeunit": "*"
