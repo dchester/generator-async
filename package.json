@@ -1,6 +1,7 @@
 {
   "name": "gx",
   "description": "Generator-based asynchronous control flow for Node.js",
+  "version": "0.1.0",
   "devDependencies": {
     "nodeunit": "*"
   }
