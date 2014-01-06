@@ -7,8 +7,6 @@ var gx = function(input, args) {
 		input instanceof Function ? 'proxy' : 
 		input instanceof Object ? 'keys' : null;
 
-	console.log("METHOD", method);
-
 	if (method) return gx[method](input, args);
 };
 
@@ -107,8 +105,6 @@ gx.class = function(klass, args) {
 
 	extend(fn, gx.keys(klass, args));
 	extend(fn.prototype, gx.keys(klass.prototype, args));
-
-	console.log(fn.prototype);
 
 	return fn;
 };
