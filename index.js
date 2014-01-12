@@ -132,24 +132,29 @@ Context.prototype = {
 		this.continue();
 	},
 
-	continue: function(payload) {
+	continue: function(payload, err) {
+
 		try {
 			contextStack.set(this);
-			var ret = this.iterator.next(payload);
+
+			var ret = err ? 
+				this.iterator.throw(err) :
+				this.iterator.next(payload);
+
 			var value = ret.value;
-			if (ret.done) this.callback(null, ret.value);
+			if (ret.done) this.callback(null, value);
 			if (ret.done) this._done = true;
+
 			if (value instanceof Function) value.call(null, this.resume());
 			contextStack.clear();
+
 		} catch(e) {
-			console.warn(e.stack);
-			this.iterator.throw(new Error(e));
-			throw new Error(e);
+			throw e.stack;
+			contextStack.clear();
 		}
 	},
 
 	resume: function() {
-
 		if (this._done) return;
 
 		var placeholder = {};
@@ -159,18 +164,19 @@ Context.prototype = {
 
 		return function(err, data) {
 
-			if (err) {
-				this.iterator.throw(new Error(err));
-				return;
-			}
+			if (err) err = new Error(err);
 
 			placeholder.value = data;
 			if (--this.pendingCount !== 0) return;
 
 			var len = this.queue.length;
+
 			while (len--) {
+				// push a dummy operation onto the next frame of the event loop
+				setImmediate(function() {});
+
 				var d = this.queue.shift();
-				this.continue(d.value);
+				this.continue(d.value, err);
 			}
 
 		}.bind(this);
