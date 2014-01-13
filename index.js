@@ -19,8 +19,22 @@ gx.proxy = function(fn) {
 	var mediator = function() {
 
 		var args = arguments;
+		var generatorCaller;
 
-		if (mediator.caller.constructor.name != 'GeneratorFunction') {
+		// hack to discover whether we're in a gnode/regenerator-style generator
+		if (
+			gnode &&
+			mediator.caller.caller &&
+			mediator.caller.caller.toString().match(/^function invoke\(\)\s+\{\s+state = GenStateExecuting/m)
+		) {
+			generatorCaller = true;
+		}
+
+		if (mediator.caller.constructor.name == 'GeneratorFunction') {
+			generatorCaller = true;
+		}
+
+		if (!generatorCaller) {
 			return fn.apply(this, arguments);
 		}
 
@@ -149,7 +163,7 @@ Context.prototype = {
 			contextStack.clear();
 
 		} catch(e) {
-			throw e.stack;
+			throw e && e.stack ? e.stack : e;
 			contextStack.clear();
 		}
 	},
@@ -221,6 +235,8 @@ function extend(obj, source) {
 		obj[prop] = source[prop];
 	}
 };
+
+var gnode = 'gnodeJsExtensionCompiler' == require.extensions['.js'].name;
 
 module.exports = gx;
 
