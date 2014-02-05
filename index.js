@@ -25,7 +25,7 @@ gx.proxy = function(fn) {
 		if (
 			gnode &&
 			mediator.caller.caller &&
-			mediator.caller.caller.toString().match(/^function invoke\(\)\s+\{\s+state = GenStateExecuting/m)
+			mediator.caller.caller.toString().match(/^function invoke[\s\S]*GenStateExecuting/m)
 		) {
 			generatorCaller = true;
 		}
