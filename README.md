@@ -1,6 +1,6 @@
 # Gx
 
-Flexible generator-based asynchronous control flow for Node.js
+Flexible generator-based asynchronous control flow for Node.js.  Requires Node >= v0.11.3 with the `--harmony-generators` flag.
 
 ## Introduction
 
