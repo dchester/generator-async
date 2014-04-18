@@ -158,7 +158,7 @@ Invokes and executes the supplied generator function.
 
 Iterates through object keys and wraps functions to be compatible in a generator async context.
 
-#### gx.class(klass);
+#### gx.class(klass)
 
 Wraps instance methods (on the prototype) and class methods (on the constructor function) to be compatible in a generator async context.
 
@@ -179,7 +179,7 @@ Ideally we should be able to write libraries that work both in the classic callb
 
 ##### Stack traces should be informative and meaningful
 
-When things go wrong ideally we have a logical stack trace to make sense of.  As of yet, other libraries do better at this, but **gx** does passibly okay.
+When things go wrong ideally we have a logical stack trace to make sense of.  As of yet, other libraries do better at this, but **gx** does passably okay.
 
 ## License
 
