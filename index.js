@@ -123,6 +123,7 @@ gx.class = function(klass, args) {
 	return fn;
 };
 
+gx.join = null;
 
 Object.defineProperty(gx, 'resume', {
 	get: function() {

@@ -111,8 +111,8 @@ gx(function*() {
 	gx.defer(read("/etc/group"));
 	
 	// yield in order
-	var passwd = yield null;
-	var group = yield null;
+	var passwd = yield gx.join;
+	var group = yield gx.join;
 });
 ```
 
@@ -126,8 +126,8 @@ gx(function*() {
 	fs.readFile("/etc/group", gx.resume);
 	
 	// yield in order
-	var passwd = yield null;
-	var group = yield null;
+	var passwd = yield gx.join;
+	var group = yield gx.join;
 });
 ```
 
