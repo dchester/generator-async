@@ -160,7 +160,14 @@ Context.prototype = {
 			if (ret.done) this.callback(null, value);
 			if (ret.done) this._done = true;
 
-			if (value instanceof Function) value.call(null, this.resume());
+			if (is_promise(value)) {
+				var callback = this.resume();
+				value.then(function(resolution) {
+					callback(null, resolution);
+				}).catch(callback);
+			} else if (value instanceof Function) {
+				value.call(null, this.resume());
+			}
 			contextStack.clear();
 
 		} catch(e) {
@@ -229,6 +236,10 @@ function is_generator(fn) {
 	if (fn.constructor.name != "GeneratorFunction") return;
 
 	return true;
+};
+
+function is_promise(fn) {
+	return fn && typeof fn == "object" && typeof fn.then == "function";
 };
 
 function extend(obj, source) {

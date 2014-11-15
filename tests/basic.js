@@ -1,5 +1,6 @@
 var fs = require('fs');
 var gx = require('..');
+var Promise = require('es6-promise').Promise;
 
 exports.fn = function(test) {
 
@@ -75,6 +76,31 @@ exports.proxyGeneratorMulti = function(test) {
 		test.equal(data2, "OK 2");
 
 		test.done();
+	});
+};
+
+exports.promise = function(test) {
+
+	var accountant = new AccountantGuarantor;
+
+	gx(function*() {
+		var sum = yield accountant.add(7, 5);
+		test.equal(sum, 12);
+		test.done();
+	});
+};
+
+exports.promiseReject = function(test) {
+
+	var accountant = new AccountantGuarantor;
+
+	gx(function*() {
+		try {
+			var sum = yield accountant.add(null);
+		} catch(e) {
+			test.ok(!!e.message.match(/bad params/));
+			test.done();
+		}
 	});
 };
 
@@ -308,6 +334,17 @@ function Maths() {
 			callback
 		}
 	};	
+};
+
+function AccountantGuarantor() {
+	return {
+		add: function(a, b) {
+			return new Promise(function(resolve, reject) {
+				if (Number(a) !== a) reject("bad params");
+				setImmediate(function() { resolve(a + b) });
+			})
+		}
+	};
 };
 
 function RectangleClass() {

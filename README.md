@@ -131,6 +131,20 @@ gx(function*() {
 });
 ```
 
+## Promises
+
+Use promisified libraries in a natural way.
+
+```
+// promisified `request` http client
+var pr = require('request-promise');
+
+gx(function*() {
+	// no need to call `then`
+	var html = yield pr('http://www.yahoo.com/');
+	console.log(html);
+});
+```
 
 ## Gentrify API
 
