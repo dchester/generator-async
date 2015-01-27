@@ -1,59 +1,128 @@
-# Gx
+# generator-async
 
-Flexible generator-based asynchronous control flow for Node.js.  Requires Node >= v0.11.3 with the `--harmony-generators` flag.
+Flexible generator-based asynchronous control flow for Node.js.  
 
 ## Introduction
 
-Gx offers a minimally-invasive approach:
+With `generator-async` use both callback-based and promise-based libraries all together with a clean, consistent interface.  Use the `yield` keyword before an asynchronous function call that would normally take a callback or return a promise, and skip the callback or call to `then()`.
 
 ```js
-var gx = require('gx');
+var async = require('generator-async');
 
-gx(function*() {
-	var data = yield fs.readFile("/etc/passwd", gx.resume);
-	console.log(data);
-});
-```
-Or, "gentrify" functions for a cleaner interface with no need to resume:
+// load `fs` with async's `require`
+var fs = async.require('fs');
 
-```js
-var fs = require('fs');
-var read = gx.gentrify(fs.readFile);
+async.run(function*() {
 
-gx(function*() {
-	var data = yield read("/etc/passwd");
-	console.log(data);
-});
-```
+	// read a file
+	var passwd = yield fs.readFile('/etc/passwd');
 
-Still yet, gentrify entire modules, and classes too.  See more below.
+	// then read another file
+	var group = yield fs.readFile('/etc/group');
 
-
-## Gentrifying Modules
-
-If you're feeling brave, gentrify entire modules:
-
-```js
-var fs = require('fs');
-
-// gentrify to make async generator compatible
-fs = gx.gentrify(fs);
-
-// since fs is gentrified we don't need to resume
-gx(function*() {
-	var data = yield fs.readFile("/etc/passwd");
-	console.log(data);
-});
-
-// original interface is still intact
-fs.readFile("/etc/passwd", function(err, data) {
-	console.log(data);
+	// then spit out the contents of both files
+	console.log(passwd, group);
 });
 ```
 
-## Gentrifying Classes
+In this example, the contents of `/etc/passwd` are read from disk and assigned to `passwd`.  Program execution waits on the I/O and assignment, while the process event loop keeps on moving.  That's in contrast to `fs.readFileSync` for example, where the entire process waits.
 
-Gentrified classes that define methods as generator functions will automatically have those generator functions wrapped in a gentrified context, meaning they'll be invoked and executed when called by consumers.
+Notice `fs` was loaded through `async.require`, which wraps async methods to be compatible.  If you'd rather not wrap, you can load modules directly like normal, and just refer to `async.cb` wherever a standard callback would be expected.
+
+
+## Running in Parallel
+
+Run functions concurrently with `async.parallel` and then yield in the same order.
+
+```js
+async.run(function*() {
+
+	// kick off read operations with async.parallel
+	async.parallel( fs.readFile('/etc/passwd') );
+	async.parallel( fs.readFile('/etc/group') );
+	
+	// yield in order
+	var passwd = yield async.yield;
+	var group = yield async.yield;
+});
+```
+
+## Examples
+
+### Working with Request
+
+```js
+var request = async.require('request');
+
+async.run(function*() {
+
+	var data = yield request('http://www.google.com');
+	console.log(data);
+});
+```
+
+### Working with Redis
+
+```js
+var redis = async.require('redis');
+
+async.run(function*() {
+
+	var client = redis.createClient(6379, '172.17.42.1', {});
+
+	yield client.hset("hash key", "hashtest 1", "some value");
+	yield client.hset("hash key", "hashtest 2", "some other value");
+
+	var data = yield client.hkeys("hash key");
+	console.log(data);
+});
+```
+
+### Working with Express
+
+Use generator functions directly as route handlers.
+
+```js
+var express = async.require('express');
+var fs = async.require('fs');
+
+var app = express();
+
+app.get('/', function*(req, res) {
+
+	var data = yield fs.readFile('/etc/passwd');
+	res.end(data);
+});
+```
+
+### Working with the file system
+
+```js
+var fs = async.require('fs');
+var mkdirp = async.require('mkdirp');
+var rimraf = async.require('rimraf');
+var path = require('path');
+var assert = require('assert');
+
+async.run(function*() {
+
+	// make a random nested directory
+	var name = path.join('mkdirp-' + parseInt(Math.random() * 10000), 'nested', 'dir');
+	assert.equal(yield fs.exists(name), false);
+
+	// see that it exists
+	var err = yield mkdirp(name);
+	assert.equal(yield fs.exists(name), true);
+
+	// remove our nascent dir
+	yield rimraf(name);
+	assert.equal(yield fs.exists(name), false);
+});
+```
+
+## Wrapping Classes
+
+Wrapped classes that define methods as generator functions will automatically have those generator functions wrapped in a generator-async context, meaning they'll be invoked and executed when called by consumers.
 
 Consider a Class representing a file:
 
@@ -68,22 +137,22 @@ File.prototype = {
 		this.filename = filename;
 	},
 	read: function*() {
-		var contents = yield fs.readFile(this.filename, gx.resume);
+		var contents = yield fs.readFile(this.filename);
 		return contents;
 	},
 	size: function*() {
-		var stat = yield fs.stat(this.filename, gx.resume);
+		var stat = yield fs.stat(this.filename);
 		return stat.size;
 	}
 };
 
-gx.gentrify(File);
+File = async(File);
 ```
 
-Consume this functionality in a gentrified context:
+Consume this functionality in an `async.run` context:
 
 ```js
-gx(function*() {
+async.run(function*() {
 	var file = new File('/etc/passwd');
 	var size = yield file.size();
 	console.log(size);
@@ -99,105 +168,175 @@ file.size(function(err, size) {
 };
 ```
 
-## Running in Parallel
+## Alternative Explicit Callback Interface
 
-Defer gentrified functions with `gx.defer` and then yield in the same order.
+Sometimes it's not feasible to wrap a module or method to be yieldable since it may have a non-standard callback scheme.  Or you may prefer the more verbose interface in order to use the module directly and shed some of the intermediary magic.  In that case, node's `require` like normal, and refer to `async.cb` where a callback is expected:
 
-```js
-gx(function*() {
+```
+// require `fs` directly
+var fs = require('fs');
 
-	// kick off read operations with gx.defer
-	gx.defer(read("/etc/passwd"));
-	gx.defer(read("/etc/group"));
-	
-	// yield in order
-	var passwd = yield gx.join;
-	var group = yield gx.join;
+async.run(function*() {
+	// refer to async.cb where the callback would go
+	var contents = fs.readFile('/etc/passwd', async.cb);
+	console.log(contents);
 });
 ```
 
-Or with classic callback-based functions, refer to gx.resume like normal but hold off yielding until you're ready.
+Use `async.cb` where a standard node callback would be expected (a function that accepts `err` and `data` parameters).  For non-standard callbacks refer to `async.raw` to get back all the values (and handle errors yourself).
 
-```js
-gx(function*() {
 
-	// skip yielding 
-	fs.readFile("/etc/passwd", gx.resume);
-	fs.readFile("/etc/group", gx.resume);
-	
-	// yield in order
-	var passwd = yield gx.join;
-	var group = yield gx.join;
-});
-```
+## API
 
-## Promises
+#### async(input)
 
-Use promisified libraries in a natural way.
+Implementation depends on the type of input.  Given a function, or generator, returns a function that is both yieldable in an `async.run` context, and also compatible with a standard callback interface.  Given an object or class, returns the input with each of its methods wrapped to be yieldable.  Aliased as `async.wrap`.
 
-```
-// promisified `request` http client
-var pr = require('request-promise');
+#### async.require(module, [hints])
 
-gx(function*() {
-	// no need to call `then`
-	var html = yield pr('http://www.yahoo.com/');
-	console.log(html);
-});
-```
+Imports a module Like node's native `require`, but also wraps that module so that its methods are yieldable in an `async.run` context with no callbacks necessary.
 
-## Gentrify API
+That's the goal at least. Wrapping involves making a heuristic best guess about which methods are asynchronous and what is their callback signature etc.  So while it often works well, you may sometimes need to give hints about the makeup of the module.  See [module-async-map](https://github.com/dchester/module-async-map) for more.
 
-#### gx(generator)
+If you'd rather, feel free to use node's native `require` instead, and refer to `async.cb` where a callback is expected.
 
-Invokes and executes the supplied generator.
-
-#### gx.gentrify(input)
-
-Implementation depends on the type of input.  Given a function, generator, object, or class, proxies to the appropriate method below.
-
-#### gx.proxy(function)
-
-Returns a wrapped version of the supplied function compatible to be run either in a generator async context or classic node callback style.
-
-#### gx.fn(generator)
-
-Returns a function that when called will invoke and execute the supplied generator function.
-
-#### gx.run(generator)
+#### async.run(fn\*)
 
 Invokes and executes the supplied generator function.
 
-#### gx.keys(object)
+#### async.proxy(fn)
 
-Iterates through object keys and wraps functions to be compatible in a generator async context.
+Returns a wrapped version of the supplied function compatible to be run either in an `async.run` context or standard node callback style.
 
-#### gx.class(klass)
+#### async.fn(fn\*)
 
-Wraps instance methods (on the prototype) and class methods (on the constructor function) to be compatible in a generator async context.
+Returns a function that when called will invoke and execute the supplied generator function.
 
 
-## Motivation and Comparison
+### Collection Methods
 
-Gentrify takes lots of inspiration from other generator-based control flow libraries such as [co](https://github.com/visionmedia/co), [genny](https://github.com/spion/genny), [galaxy](https://github.com/bjouhier/galaxy), and [suspend](https://github.com/jmar777/suspend).
+Since the `yield` keyword is only valid directly inside of generator functions, we can't `yield` inside of stock `Array` methods, which might be exactly what you want to do sometimes.  Instead, use these collection methods, which accept generator functions as iterator functions, so you can `yield` from within them.  Underlying implementations courtesy of the fantastic [async](https://github.com/caolan/async) library, which has more documentation.
 
-##### Wrapping should be possible but not required
+#### async.forEach(arr, generatorFunction)
 
-Ideally if we want to call some asynchronous function that doesn't follow the classic `function(err, data)` callback convention, like `setTimeout` (takes the callback as the first parameter) or `fs.exists` (no `err` parameter), we should have a no-effort way to just go ahead and do that.  With **gx**, reference `gx.resume` wherever the callback would naturally lie.
+Applies the generatorFunction as an iterator to each item in `arr`, in parallel.  Aliased as `async.each`.
 
-There's no doubt that **co** is awesome, but the requirement that functions be wrapped puts a burden on the consumer, and imposes [compatibility layers](https://github.com/visionmedia/co/wiki) for every library used within the `co` context.
+```js
+var fs = async.require('fs');
 
-##### Wrapped libraries should preserve their original interface
+async.run(function*() {
 
-Ideally we should be able to write libraries that work both in the classic callback style, and in an async generator style, without having to wrap or unwrap, or maintain separate compatibility npm modules.  The **galaxy** library implements `star()` and `unstar()` to be able to go back and forth, but nicer would be to have the given library just work in either context.  With **gx** even after you "gentrify" modules retain their original interface.
+	var filenames = [...];
+	var totalBytes = 0;
 
-##### Stack traces should be informative and meaningful
+	yield async.forEach(filenames, function*(filename) {
+		var stat = yield fs.stat(filename);
+		totalBytes += stat.size;
+		console.log(filename, stat.size);
+	});
 
-When things go wrong ideally we have a logical stack trace to make sense of.  As of yet, other libraries do better at this, but **gx** does passably okay.
+	console.log("Total bytes:", totalBytes);
+});
+```
+
+#### async.forEachLimit(arr, limit, generatorFunction)
+
+Same as `async.forEach` except that only limit iterators will be simultaneously running at any time.
+
+#### async.map(arr, generatorFunction)
+
+Produces a new array of values by mapping each value in arr through the generator function.
+
+```js
+async.run(function*() {
+
+	var filenames = [...];
+
+	var existences = yield async.map(filenames, function*(filename) {
+		return yield fs.exists(filename);
+	});
+
+	console.log(existences); // => [ true, true, false, true, ... ]
+});
+
+```
+#### async.mapLimit(arr, limit, generatorFunction)
+
+Same as `async.map` except that only limit iterators will be simultaneously running at any time.
+
+#### async.filter(arr, generatorFunction)
+
+Returns a new array of all the values in arr which pass an async truth test.
+
+```js
+async.run(function*() {
+
+	var filenames = [...];
+
+	var bigFiles = yield async.filter(filenames, function*(filename) {
+		var stat = yield fs.stat(filename);
+		return stat.size > 1024;
+	});
+
+	console.log("Big files:", bigFiles);
+});
+```
+
+#### async.reject(arr, generatorFunction)
+
+The opposite of `async.filter`. Removes values that pass an async truth test.
+
+#### async.reduce(arr, memo, generatorFunction)
+
+Reduces `arr` into a single value using an async iterator to return each successive step. `memo` is the initial state of the reduction.  Runs in series.
+
+#### async.reduceRight(arr, memo, generatorFunction)
+
+Same as `async.reduce`, only operates on arr in reverse order.
+
+#### async.detect(arr, generatorFunction)
+
+Returns the first value in `arr` that passes an async truth test. The generator function is applied in parallel, meaning the first iterator to return true will itself be returned.
+
+#### async.sortBy(arr, generatorFunction)
+
+Sorts a list by the results of running each arr value through an async generator function.
+
+```js
+async.run(function*() {
+
+	var filenames = [...];
+
+	var sortedFiles = yield async.filter(filenames, function*(filename) {
+		var stat = yield fs.stat(filename);
+		return stat.size;
+	});
+
+	console.log("Sorted files:", sorted);
+});
+```
+
+#### async.some(arr, generatorFunction)
+
+Returns true if at least one element in the arr satisfies an async test.
+
+#### async.every(arr, generatorFunction)
+
+Returns true if every element in arr satisfies an async test. 
+
+#### async.concat(arr, generatorFunction)
+
+Applies iterator to each item in arr, concatenating the results. Returns the concatenated list.
+
+
+## History and Inspiration
+
+This is an evolution of [gx](https://github.com/dchester/gx), with inspiration from other generator-based control flow libraries such as [co](https://github.com/visionmedia/co), [genny](https://github.com/spion/genny), [galaxy](https://github.com/bjouhier/galaxy), and [suspend](https://github.com/jmar777/suspend).
+
 
 ## License
 
-Copyright (c) 2014 David Chester
+Copyright (c) 2015 David Chester
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
