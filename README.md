@@ -172,7 +172,7 @@ file.size(function(err, size) {
 
 Sometimes it's not feasible to wrap a module or method to be yieldable since it may have a non-standard callback scheme.  Or you may prefer the more verbose interface in order to use the module directly and shed some of the intermediary magic.  In that case, node's `require` like normal, and refer to `async.cb` where a callback is expected:
 
-```
+```js
 // require `fs` directly
 var fs = require('fs');
 
