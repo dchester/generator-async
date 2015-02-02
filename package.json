@@ -3,11 +3,12 @@
   "description": "Generator-based asynchronous control flow for Node.js",
   "version": "0.1.0",
   "scripts": {
-    "test": "mocha --harmony -u tdd test/unit"
+    "test": "mocha --harmony -u tdd test/unit && jscs lib"
   },
   "devDependencies": {
     "es6-promise": "*",
     "glob": "^4.3.5",
+    "jscs": "^1.10.0",
     "jsdom": "^3.1.0",
     "mkdirp": "^0.5.0",
     "mocha": "2.1.0",
