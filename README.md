@@ -106,15 +106,15 @@ var assert = require('assert');
 
 async.run(function*() {
 
-	// make a random nested directory
+	// come up with a random-ish nested dir name and see that it doesn't exist yet
 	var name = path.join('mkdirp-' + parseInt(Math.random() * 10000), 'nested', 'dir');
 	assert.equal(yield fs.exists(name), false);
 
-	// see that it exists
+	// create the new directory and see that it exists
 	var err = yield mkdirp(name);
 	assert.equal(yield fs.exists(name), true);
 
-	// remove our nascent dir
+	// remove our nascent dir and see that it no longer exists
 	yield rimraf(name);
 	assert.equal(yield fs.exists(name), false);
 });
