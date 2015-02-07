@@ -16,10 +16,10 @@ suite('redis module', function() {
     assert.equal(reply, "OK");
 
     reply = yield client.hset("hash key", "hashtest 1", "some value");
-    assert.equal(reply, 0);
+    assert.equal(reply, 1);
 
     reply = yield client.hset(["hash key", "hashtest 2", "some other value"]);
-    assert.equal(reply, 0);
+    assert.equal(reply, 1);
 
     var keys = yield client.hkeys("hash key");
     assert.deepEqual(keys, ['hashtest 1', 'hashtest 2'])
