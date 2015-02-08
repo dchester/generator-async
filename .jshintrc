@@ -1,0 +1,10 @@
+{
+  "node": true,
+  "undef": true,
+  "unused": true,
+  "lastsemic": true,
+  "-W058": false,      /* don't require parentheses for no-arg constructors */
+  "-W054": false,      /* use Function constructor responsibly */
+  "-W033": false,      /* let jscs deal with semicolons */
+  "-W038": false       /* don't try and fool ourself about block vs function scope */
+}

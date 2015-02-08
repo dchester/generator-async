@@ -3,7 +3,7 @@
   "description": "Generator-based asynchronous control flow for Node.js",
   "version": "0.1.0",
   "scripts": {
-    "test": "mocha --harmony -u tdd test/unit && jscs lib"
+    "test": "mocha --harmony -u tdd test/unit && jscs lib && jshint lib"
   },
   "devDependencies": {
     "es6-promise": "*",
