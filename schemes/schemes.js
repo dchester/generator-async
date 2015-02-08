@@ -1,8 +1,4 @@
 module.exports = {
-	fs: {
-		'*': 'standard',
-		exists: 'simple'
-	},
 	mkdirp: {
 		'$': '+standard'
 	},
