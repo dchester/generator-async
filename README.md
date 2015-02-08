@@ -217,9 +217,9 @@ Returns a function that when called will invoke and execute the supplied generat
 
 Since the `yield` keyword is only valid directly inside of generator functions, we can't `yield` inside of stock `Array` methods, which might be exactly what you want to do sometimes.  Instead, use these collection methods, which accept generator functions as iterator functions, so you can `yield` from within them.  Underlying implementations courtesy of the fantastic [async](https://github.com/caolan/async) library, which has more documentation.
 
-#### async.forEach(arr, generatorFunction)
+#### async.forEach(arr, fn\*)
 
-Applies the generatorFunction as an iterator to each item in `arr`, in parallel.  Aliased as `async.each`.
+Applies `fn*` as an iterator to each item in `arr`, in parallel.  Aliased as `async.each`.
 
 ```js
 var fs = async.require('fs');
@@ -239,11 +239,11 @@ async.run(function*() {
 });
 ```
 
-#### async.forEachLimit(arr, limit, generatorFunction)
+#### async.forEachLimit(arr, limit, fn\*)
 
 Same as `async.forEach` except that only limit iterators will be simultaneously running at any time.
 
-#### async.map(arr, generatorFunction)
+#### async.map(arr, fn\*)
 
 Produces a new array of values by mapping each value in arr through the generator function.
 
@@ -260,11 +260,11 @@ async.run(function*() {
 });
 
 ```
-#### async.mapLimit(arr, limit, generatorFunction)
+#### async.mapLimit(arr, limit, fn\*)
 
 Same as `async.map` except that only limit iterators will be simultaneously running at any time.
 
-#### async.filter(arr, generatorFunction)
+#### async.filter(arr, fn\*)
 
 Returns a new array of all the values in arr which pass an async truth test.
 
@@ -282,23 +282,23 @@ async.run(function*() {
 });
 ```
 
-#### async.reject(arr, generatorFunction)
+#### async.reject(arr, fn\*)
 
 The opposite of `async.filter`. Removes values that pass an async truth test.
 
-#### async.reduce(arr, memo, generatorFunction)
+#### async.reduce(arr, memo, fn\*)
 
 Reduces `arr` into a single value using an async iterator to return each successive step. `memo` is the initial state of the reduction.  Runs in series.
 
-#### async.reduceRight(arr, memo, generatorFunction)
+#### async.reduceRight(arr, memo, fn\*)
 
 Same as `async.reduce`, only operates on arr in reverse order.
 
-#### async.detect(arr, generatorFunction)
+#### async.detect(arr, fn\*)
 
 Returns the first value in `arr` that passes an async truth test. The generator function is applied in parallel, meaning the first iterator to return true will itself be returned.
 
-#### async.sortBy(arr, generatorFunction)
+#### async.sortBy(arr, fn\*)
 
 Sorts a list by the results of running each arr value through an async generator function.
 
@@ -316,15 +316,15 @@ async.run(function*() {
 });
 ```
 
-#### async.some(arr, generatorFunction)
+#### async.some(arr, fn\*)
 
 Returns true if at least one element in the arr satisfies an async test.
 
-#### async.every(arr, generatorFunction)
+#### async.every(arr, fn\*)
 
 Returns true if every element in arr satisfies an async test. 
 
-#### async.concat(arr, generatorFunction)
+#### async.concat(arr, fn\*)
 
 Applies iterator to each item in arr, concatenating the results. Returns the concatenated list.
 
