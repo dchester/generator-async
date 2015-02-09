@@ -1,7 +1,7 @@
 {
   "name": "generator-async",
   "description": "Generator-based asynchronous control flow for Node.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "test": "mocha --harmony -u tdd test/unit && jscs lib && jshint lib"
   },
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "jsonpath": "0.1.3",
-    "module-async-mapper": "https://github.com/dchester/module-async-mapper/archive/master.tar.gz",
+    "module-async-mapper": "0.1.0",
     "methods": "1.1.1",
     "async": "0.9.0",
     "package-path": "0.0.1",
