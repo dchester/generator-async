@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "jsonpath": "0.1.3",
-    "module-async-map": "https://github.com/dchester/module-async-map/archive/master.tar.gz",
+    "module-async-mapper": "https://github.com/dchester/module-async-mapper/archive/master.tar.gz",
     "methods": "1.1.1",
     "async": "0.9.0",
     "package-path": "0.0.1",
