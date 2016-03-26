@@ -1,7 +1,7 @@
 {
   "name": "generator-async",
   "description": "Generator-based asynchronous control flow for Node.js",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "scripts": {
     "test": "mocha --harmony -u tdd test/unit && jscs lib && jshint lib"
   },
