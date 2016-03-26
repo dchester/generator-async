@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dchester/generator-async.png?branch=master)](https://travis-ci.org/dchester/generator-async)
+
 # generator-async
 
 Flexible generator-based asynchronous control flow for Node.js.  
