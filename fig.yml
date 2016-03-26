@@ -1,8 +1,6 @@
 test:
   build: .
   command: node --harmony /usr/src/app/node_modules/.bin/mocha --harmony -u tdd test/acceptance
-  ports:
-    - "3000:3000"
   volumes:
     - .:/usr/src/app
   environment:

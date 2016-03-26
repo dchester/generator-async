@@ -18,14 +18,16 @@
     "redis": "0.12.1",
     "request": "2.51.0",
     "rimraf": "2.2.8",
-    "superagent": "0.21.0"
+    "superagent": "0.21.0",
+    "mocha": "2.4.5"
   },
   "dependencies": {
+    "esprima": "2.7.2",
     "jsonpath": "0.1.3",
     "module-async-mapper": "0.1.2",
     "methods": "1.1.1",
     "async": "0.9.0",
-    "package-path": "0.0.1",
+    "package-path": "https://github.com/azer/package-path/archive/d1a59dcb5ce33ea9891a4a5dbf6e2397b0c39df7.tar.gz",
     "semver": "4.2.0",
     "callsite": "1.0.0"
   }
