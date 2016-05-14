@@ -30,5 +30,9 @@
     "package-path": "https://github.com/azer/package-path/archive/d1a59dcb5ce33ea9891a4a5dbf6e2397b0c39df7.tar.gz",
     "semver": "4.2.0",
     "callsite": "1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dchester/generator-async"
   }
 }
