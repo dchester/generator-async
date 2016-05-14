@@ -40,6 +40,17 @@ suite('main', function() {
 
   });
 
+  test('explicitCallback', function(done) {
+
+    var pacify = new NodeCallback;
+
+    async.run(function*() {
+      var state = yield pacify(async.cb);
+      assert.equal(state, "OK");
+      done()
+    });
+  });
+
   test('proxyClassic', function(done) {
 
     var callback = new NodeCallback;

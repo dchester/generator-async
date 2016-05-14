@@ -29,7 +29,7 @@ async.run(function*() {
 
 In this example, the contents of `/etc/passwd` are read from disk and assigned to `passwd`.  Program execution waits on the I/O and assignment, while the process event loop keeps on moving.  That's in contrast to `fs.readFileSync` for example, where the entire process waits.
 
-Notice `fs` was loaded through `async.require`, which wraps async methods to be compatible.  If you'd rather not wrap, you can load modules directly like normal, and just refer to `async.cb` wherever a standard callback would be expected.
+Notice `fs` was loaded through `async.require`, which wraps async methods to be compatible.  If you'd rather not wrap, you can load modules directly like normal, and just refer to `async.cb` wherever a standard callback would be expected.  See the [Alternative Explicit Callback Interface](#alternative-explicit-callback-interface) section below for more.
 
 
 ## Running in Parallel
@@ -180,7 +180,7 @@ var fs = require('fs');
 
 async.run(function*() {
 	// refer to async.cb where the callback would go
-	var contents = fs.readFile('/etc/passwd', async.cb);
+	var contents = yield fs.readFile('/etc/passwd', async.cb);
 	console.log(contents);
 });
 ```
