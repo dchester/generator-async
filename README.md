@@ -241,9 +241,9 @@ async.run(function*() {
 });
 ```
 
-#### async.forEachLimit(arr, limit, fn\*)
+#### async.eachLimit(arr, limit, fn\*)
 
-Same as `async.forEach` except that only limit iterators will be simultaneously running at any time.
+Same as `async.forEach` except that only `limit` iterators will be simultaneously running at any time.
 
 #### async.map(arr, fn\*)
 
